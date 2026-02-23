@@ -32,7 +32,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/events/**").authenticated()
                     .requestMatchers(HttpMethod.POST, "/events").hasRole("PROFESSOR")
-                    .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements", "/organizers").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/organizers").authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/organizers/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/organizers/**").authenticated()
                     .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout((logout) -> logout

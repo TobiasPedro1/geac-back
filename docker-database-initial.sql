@@ -42,6 +42,22 @@ CREATE TABLE tags
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE organizers
+(
+    id            SERIAL PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL UNIQUE,
+    contact_email VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE organizer_members
+(
+    id           SERIAL PRIMARY KEY,
+    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(organizer_id, user_id)
+);
+
 CREATE TABLE events
 (
     id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
