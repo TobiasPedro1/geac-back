@@ -3,6 +3,7 @@ package br.com.geac.backend.Aplication.Services;
 import br.com.geac.backend.Aplication.DTOs.Reponse.RequirementsResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.RequirementRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.RequirementMapper;
+import br.com.geac.backend.Domain.Entities.EventRequirement;
 import br.com.geac.backend.Repositories.EventRequirementRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,7 @@ public class RequirementService {
     }
 
     public RequirementsResponseDTO getById(Integer id) {
-        var requirement = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Requirement not found"));
+        var requirement = getRequirementByIdOrThrowBadRequest(id);
         return mapper.toDTO(requirement);
     }
 
@@ -39,16 +39,19 @@ public class RequirementService {
 
     @Transactional
     public RequirementsResponseDTO updateRequirement(Integer id, RequirementRequestDTO dto) {
-        var requirement = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Requirement not found"));
+        var requirement = getRequirementByIdOrThrowBadRequest(id);
         if (dto.description() != null) requirement.setDescription(dto.description());
         return mapper.toDTO(requirement);
     }
 
     @Transactional
     public void deleteRequirement(Integer id) {
-        if(!repository.existsById(id)) throw new EntityNotFoundException("Requirement not found");
-        repository.deleteById(id);
-        repository.flush();
+        var requirement = getRequirementByIdOrThrowBadRequest(id);
+        repository.delete(requirement);
+    }
+
+    private EventRequirement getRequirementByIdOrThrowBadRequest(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Requirement not found"));
     }
 }

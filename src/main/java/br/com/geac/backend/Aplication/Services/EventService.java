@@ -38,13 +38,11 @@ public class EventService {
 
         Category category = categoryRepository.findById(dto.categoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + dto.categoryId()));
-
         Location location = null;
         if (dto.locationId() != null) {
             location = locationRepository.findById(dto.locationId())
                     .orElseThrow(() -> new RuntimeException("Local não encontrado com ID: " + dto.locationId()));
         }
-
         EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
                 .orElseThrow(() -> new RuntimeException("Requisito não encontrado com ID: " + dto.requirementId()));
 
@@ -78,15 +76,14 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + id));
+        Event event = getEventByIdOrThrow(id);
         return eventMapper.toResponseDTO(event);
     }
 
+    @Transactional
     public EventResponseDTO patchEvent(UUID id, EventPatchRequestDTO dto) {
 
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        Event event = getEventByIdOrThrow(id);
         eventMapper.updateEventFromDto(dto, event);
 
         if (dto.speakers() != null) event.setSpeakers(resolveSpeakers(dto.speakers()));
@@ -109,9 +106,9 @@ public class EventService {
 
     }
 
+    @Transactional
     public void deleteEvent(UUID id) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        Event event = getEventByIdOrThrow(id);
         eventRepository.delete(event);
     }
     private Set<Tag> resolveTags(Set<Integer> ids) {
@@ -124,4 +121,8 @@ public class EventService {
         return speakerRepository.findAllByIdIn(ids);
     }
 
+    private Event getEventByIdOrThrow(UUID id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + id));
+    }
 }

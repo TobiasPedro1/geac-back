@@ -39,8 +39,7 @@ public class SpeakerService {
     }
 
     public SpeakerResponseDTO getById(Integer id) {
-        var speaker = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
+        var speaker = getSpeakerOrThrowBadRequest(id);
         return mapper.toDto(speaker);
     }
 
@@ -53,14 +52,12 @@ public class SpeakerService {
     @Transactional
     public SpeakerResponseDTO updateSpeaker(Integer id, SpeakerPatchRequestDTO dto) {
 
-        var speaker = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
+        var speaker = getSpeakerOrThrowBadRequest(id);
         mapper.updateEntityFromDTO(dto, speaker);
 
         if (repository.existsByNameAndEmailAndIdNot(speaker.getName(), speaker.getEmail(), id)) {
             throw new RuntimeException("Another speaker with the same name and email already exists");
         }
-
         //TODO: verificacao meia boca, se der melhorar dps
         if (dto.qualifications() != null && !dto.qualifications().isEmpty() && qualificationsChanged(speaker, dto.qualifications())) {
             var qualifications = resolveQualifications(dto.qualifications());
@@ -70,6 +67,16 @@ public class SpeakerService {
 
     }
 
+    @Transactional
+    public void deleteSpeaker(Integer id) {
+        var speaker = getSpeakerOrThrowBadRequest(id);
+        repository.delete(speaker);
+    }
+
+    private Speaker getSpeakerOrThrowBadRequest(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
+    }
     private boolean qualificationsChanged(Speaker speaker, Set<QualificationRequestDTO> dtos) {
         if (speaker.getQualifications().size() != dtos.size()) {
             return true;
@@ -80,18 +87,10 @@ public class SpeakerService {
                                 .stream()
                                 .noneMatch(q ->
                                         q.getTitleName().equals(dto.titleName())
-                                        && q.getInstitution().equals(dto.institution())
+                                                && q.getInstitution().equals(dto.institution())
                                 )
                 );
     }
-
-    @Transactional
-    public void deleteSpeaker(Integer id) {
-        repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
-        repository.deleteById(id);
-    }
-
     private Set<Qualification> resolveQualifications(Set<QualificationRequestDTO> dtos) {
         return dtos
                 .stream()

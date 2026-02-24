@@ -4,6 +4,7 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.LocationResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.LocationPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.LocationRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.LocationMapper;
+import br.com.geac.backend.Domain.Entities.Location;
 import br.com.geac.backend.Repositories.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,8 +31,7 @@ public class LocationService {
     }
 
     public LocationResponseDTO getById(Integer id) {
-        var location = locationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+        var location = getLocationByIdOrThrownBadRequest(id);
         return locationMapper.toDto(location);
     }
 
@@ -42,11 +42,9 @@ public class LocationService {
     }
 
     @Transactional
-
     public LocationResponseDTO updateLocation(Integer id, LocationPatchRequestDTO dto) {
 
-        var location = locationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+        var location = getLocationByIdOrThrownBadRequest(id);
 
         String newZipCode = dto.zipCode() != null ? dto.zipCode() : location.getZipCode();
         String newNumber = dto.number() != null ? dto.number() : location.getNumber();
@@ -57,19 +55,20 @@ public class LocationService {
         }
 
         locationMapper.updateEntityFromDTO(dto, location);
-
         return locationMapper.toDto(locationRepository.save(location));
     }
 
     @Transactional
     public void deleteLocation(Integer id) {
 
-        var location = locationRepository.findById(id)
+        var location = getLocationByIdOrThrownBadRequest(id);
+        locationRepository.delete(location);
+        locationRepository.flush(); //pode dar erro de constraint
+
+    }
+
+    private Location getLocationByIdOrThrownBadRequest(Integer id) {
+        return locationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
-        try {
-            locationRepository.delete(location);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Cannot delete location because it is referenced by other entities");
-        }
     }
 }

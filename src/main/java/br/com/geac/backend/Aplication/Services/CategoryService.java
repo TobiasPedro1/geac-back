@@ -4,6 +4,7 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.CategoryResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.CategoryPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.CategoryRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.CategoryMapper;
+import br.com.geac.backend.Domain.Entities.Category;
 import br.com.geac.backend.Repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,7 @@ public class CategoryService {
     }
 
     public CategoryResponseDTO getCategoryById(Integer id) {
-        var category = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        var category = getCategoryOrElseThrow(id);
         return mapper.toResponse(category);
     }
 
@@ -37,16 +37,19 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDTO updateCategory(Integer id, CategoryPatchRequestDTO dto) {
-        var category = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        var category = getCategoryOrElseThrow(id);
         mapper.updateEntityFromDto(dto, category);
         return mapper.toResponse(repository.save(category));
     }
 
     @Transactional
     public void deleteCategory(Integer id) {
-        var category = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        var category = getCategoryOrElseThrow(id);
         repository.delete(category);
+    }
+
+    private Category getCategoryOrElseThrow(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 }
