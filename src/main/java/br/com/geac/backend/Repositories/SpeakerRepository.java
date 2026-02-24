@@ -9,5 +9,6 @@ import java.util.Set;
 
 @Repository
 public interface SpeakerRepository extends JpaRepository<Speaker, Integer> {
+
     Set<Speaker> findAllByIdIn(Collection<Integer> ids);
 }

@@ -2,9 +2,11 @@ package br.com.geac.backend.API.Controller;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.SpeakerResponseDTO;
 import br.com.geac.backend.Aplication.Mappers.SpeakerMapper;
+import br.com.geac.backend.Domain.Entities.Speaker;
 import br.com.geac.backend.Repositories.SpeakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

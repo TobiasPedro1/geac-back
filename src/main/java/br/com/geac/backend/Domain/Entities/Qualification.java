@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "qualifications")
+@Table(name = "speaker_qualifications")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class Qualification {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "speaker_id", nullable = false)
     private Speaker speaker;
 
