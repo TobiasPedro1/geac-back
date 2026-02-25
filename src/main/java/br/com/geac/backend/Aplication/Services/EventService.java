@@ -1,18 +1,17 @@
 package br.com.geac.backend.Aplication.Services;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
-import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.Mappers.EventMapper;
 import br.com.geac.backend.Domain.Entities.*;
-import br.com.geac.backend.Repositories.*;
+import br.com.geac.backend.Infrastructure.Repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -111,12 +110,13 @@ public class EventService {
         Event event = getEventByIdOrThrow(id);
         eventRepository.delete(event);
     }
+
     private Set<Tag> resolveTags(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return Set.of();
         return tagRepository.findAllByIdIn(ids);
     }
 
-    private Set<Speaker> resolveSpeakers(Set <Integer> ids) {
+    private Set<Speaker> resolveSpeakers(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return Set.of();
         return speakerRepository.findAllByIdIn(ids);
     }

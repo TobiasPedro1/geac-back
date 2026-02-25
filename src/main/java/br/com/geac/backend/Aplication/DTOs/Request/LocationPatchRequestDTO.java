@@ -1,6 +1,8 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 public record LocationPatchRequestDTO(
 

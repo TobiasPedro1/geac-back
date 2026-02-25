@@ -4,14 +4,14 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.RegistrationResponseDTO;
 import br.com.geac.backend.Domain.Entities.Event;
 import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
-import br.com.geac.backend.Repositories.EventRepository;
-import br.com.geac.backend.Repositories.RegistrationRepository;
+import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Infrastructure.Repositories.EventRepository;
+import br.com.geac.backend.Infrastructure.Repositories.RegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import br.com.geac.backend.Domain.Exceptions.ConflictException;
 
 import java.util.List;
 import java.util.UUID;

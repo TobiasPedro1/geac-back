@@ -38,4 +38,5 @@ public record LocationRequestDTO(
         @NotNull(message = "A capacidade é obrigatória")
         @Positive(message = "A capacidade deve ser um número positivo")
         Integer capacity
-) {}
+) {
+}

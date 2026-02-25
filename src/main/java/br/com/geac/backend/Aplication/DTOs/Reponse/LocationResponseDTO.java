@@ -1,6 +1,6 @@
 package br.com.geac.backend.Aplication.DTOs.Reponse;
 
-public record LocationResponseDTO (
+public record LocationResponseDTO(
         Integer id,
         String name,
         String street,
@@ -10,5 +10,5 @@ public record LocationResponseDTO (
         String state,
         String zipCode,
         String referencePoint,
-        Integer capacity){
+        Integer capacity) {
 }
