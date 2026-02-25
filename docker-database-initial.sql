@@ -32,11 +32,6 @@ CREATE TABLE users
     created_at    TIMESTAMP        DEFAULT NOW()
 );
 
-CREATE TABLE notifications
-(
-    id SERIAL PRIMARY KEY
-    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-)
 CREATE TABLE requirements
 (
     id          SERIAL PRIMARY KEY,
@@ -63,6 +58,7 @@ CREATE TABLE speaker_qualifications
     speaker_id  INTEGER      NOT NULL REFERENCES speakers (id) ON DELETE CASCADE,
     title_name  VARCHAR(100) NOT NULL, -- Ex: "Doutor em Ciência da Computação"
     institution VARCHAR(100) NOT NULL  -- Ex: "USP"
+);
 CREATE TABLE organizers
 (
     id            SERIAL PRIMARY KEY,
@@ -73,10 +69,10 @@ CREATE TABLE organizers
 CREATE TABLE organizer_members
 (
     id           SERIAL PRIMARY KEY,
-    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
-    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    organizer_id INTEGER NOT NULL REFERENCES organizers (id) ON DELETE CASCADE,
+    user_id      UUID    NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(organizer_id, user_id)
+    UNIQUE (organizer_id, user_id)
 );
 
 CREATE TABLE events
@@ -115,43 +111,53 @@ CREATE TABLE event_tags
     PRIMARY KEY (event_id, tag_id)
 );
 
-CREATE TABLE organizer_requests (
-                                    id SERIAL PRIMARY KEY,
-                                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                                    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
-                                    justification TEXT,
-                                    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    resolved_at TIMESTAMP
+CREATE TABLE organizer_requests
+(
+    id            SERIAL PRIMARY KEY,
+    user_id       UUID    NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    organizer_id  INTEGER NOT NULL REFERENCES organizers (id) ON DELETE CASCADE,
+    justification TEXT,
+    status        VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    created_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    resolved_at   TIMESTAMP
 );
 
+CREATE TABLE notifications
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    event_id   UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    status     BOOLEAN     DEFAULT FALSE,
+    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL')),
+    title      VARCHAR(255),
+    message    TEXT,
+    created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
 INSERT INTO speakers (name, bio, email)
-VALUES
-    ('Dr. Alan Turing', 'Pai da computação e especialista em IA.', 'alan.turing@example.com'),
-    ('Dra. Marie Curie', 'Pesquisadora em física e química.', 'marie.curie@example.com'),
-    ('Grace Hopper', 'Pioneira na programação e criadora do COBOL.', 'grace.hopper@example.com'),
-    ('Nikola Tesla', 'Inovador em sistemas de energia elétrica.', 'nikola.tesla@example.com'),
-    ('Ada Lovelace', 'Primeira programadora da história.', 'ada.lovelace@example.com'),
-    ('Richard Feynman', 'Físico teórico e Nobel de Física.', 'richard.feynman@example.com'),
-    ('Margaret Hamilton', 'Diretora de engenharia de software da missão Apollo.', 'margaret.hamilton@example.com'),
-    ('Carl Sagan', 'Astrofísico e divulgador científico.', 'carl.sagan@example.com'),
-    ('Hedy Lamarr', 'Inventora da base para o Wi-Fi e Bluetooth.', 'hedy.lamarr@example.com'),
-    ('Steve Wozniak', 'Cofundador da Apple e engenheiro de hardware.', 'steve.wozniak@example.com');
+VALUES ('Dr. Alan Turing', 'Pai da computação e especialista em IA.', 'alan.turing@example.com'),
+       ('Dra. Marie Curie', 'Pesquisadora em física e química.', 'marie.curie@example.com'),
+       ('Grace Hopper', 'Pioneira na programação e criadora do COBOL.', 'grace.hopper@example.com'),
+       ('Nikola Tesla', 'Inovador em sistemas de energia elétrica.', 'nikola.tesla@example.com'),
+       ('Ada Lovelace', 'Primeira programadora da história.', 'ada.lovelace@example.com'),
+       ('Richard Feynman', 'Físico teórico e Nobel de Física.', 'richard.feynman@example.com'),
+       ('Margaret Hamilton', 'Diretora de engenharia de software da missão Apollo.', 'margaret.hamilton@example.com'),
+       ('Carl Sagan', 'Astrofísico e divulgador científico.', 'carl.sagan@example.com'),
+       ('Hedy Lamarr', 'Inventora da base para o Wi-Fi e Bluetooth.', 'hedy.lamarr@example.com'),
+       ('Steve Wozniak', 'Cofundador da Apple e engenheiro de hardware.', 'steve.wozniak@example.com');
 INSERT INTO speaker_qualifications (speaker_id, title_name, institution)
-VALUES
-    (1, 'Doutorado em Matemática', 'University of Cambridge'),
-    (2, 'Nobel de Química', 'Sorbonne University'),
-    (3, 'PHD em Matemática', 'Yale University'),
-    (4, 'Engenheiro Elétrico', 'Graz University of Technology'),
-    (5, 'Especialista em Algoritmos', 'University of London'),
-    (6, 'Doutorado em Física', 'Princeton University'),
-    (7, 'Especialista em Software de Sistemas', 'MIT'),
-    (8, 'Doutorado em Astrofísica', 'University of Chicago'),
-    (9, 'Inventora de Espectro de Difusão', 'National Inventors Hall of Fame'),
-    (10, 'Engenheiro de Computação', 'UC Berkeley');
+VALUES (1, 'Doutorado em Matemática', 'University of Cambridge'),
+       (2, 'Nobel de Química', 'Sorbonne University'),
+       (3, 'PHD em Matemática', 'Yale University'),
+       (4, 'Engenheiro Elétrico', 'Graz University of Technology'),
+       (5, 'Especialista em Algoritmos', 'University of London'),
+       (6, 'Doutorado em Física', 'Princeton University'),
+       (7, 'Especialista em Software de Sistemas', 'MIT'),
+       (8, 'Doutorado em Astrofísica', 'University of Chicago'),
+       (9, 'Inventora de Espectro de Difusão', 'National Inventors Hall of Fame'),
+       (10, 'Engenheiro de Computação', 'UC Berkeley');
 INSERT INTO public.users (id, full_name, email, password_hash, user_type, created_at)
 VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
         '$2a$10$kXz14cSQ4CuM8ev7MKWtQu1/4Ny7v/ic5xuQxgwZzh.x9ZHLuxOM2', 'STUDENT', NOW()),
@@ -170,30 +176,17 @@ VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
        ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com',
         '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW());
 
-INSERT INTO public.users (id, full_name, email, password_hash, user_type, created_at) VALUES
-                                                                                          ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com', '$2a$10$kXz14cSQ4CuM8ev7MKWtQu1/4Ny7v/ic5xuQxgwZzh.x9ZHLuxOM2', 'STUDENT', NOW()),
-                                                                                          ('b82120cf-41a7-406a-b52d-259cdbef3041', 'student2', 'student2@test.com', '$2a$10$.bW0KlZDt.tkGrj6xxTgL./OoUtYrmaq3re.ABGjN7u4pHnnl.k3G', 'STUDENT', NOW()),
-                                                                                          ('5c0a92a1-b445-4e4b-807c-6fbca67b9092', 'student3', 'student3@test.com', '$2a$10$TTE/WAR4tTdILrWFdC7aDOT1lJzwHpNVY8MYBiHkw1q6Ki3oQFy7G', 'STUDENT', NOW()),
-                                                                                          ('9be3d05c-7638-4f78-814a-ce4c21463262', 'student4', 'student4@test.com', '$2a$10$6R/amLD0hO1oMDMyCSiA4.jCJgcKuPgYFv9wxpmLt9d0Fx/YXyR9q', 'STUDENT', NOW()),
-                                                                                          ('286c2d18-9814-4d88-a55d-14bacaefcf49', 'student5', 'student5@test.com', '$2a$10$kWOVCbnEdBKwoirx8IvxxuBC1r5TS8O8/ekLd1JkAKlVvW6rDLajy', 'STUDENT', NOW()),
-                                                                                          ('073b9076-2317-4511-a9c3-535654e75363', 'professor1', 'professor1@test.com', '$2a$10$UAH/nCUUYJ6Cklr79GLUVuY91SBHZh.JmyP/Id6NdnTBvhG6m5Vma', 'PROFESSOR', NOW()),
-                                                                                          ('be4999bf-6d31-4414-a0a6-ae61d53a6387', 'professor2', 'professor2@test.com', '$2a$10$MOljMoo4PYuoz4yzBJK8K.tW/2iBtWFcFUkZv8d5RuGfIMikJITDu', 'PROFESSOR', NOW()),
-                                                                                          ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com', '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW()),
-                                                                                          ('e6137fdc-6fc2-4776-8616-9e238c1b48a7', 'admin', 'admin@admin.com', '$2a$10$/h/iWZLAhU4PfZmTew1nl.6xfNP4ymHEu5zSWXGhGIsce41x7p146', 'ADMIN', NOW());
-
-
 INSERT INTO categories (name, description)
-VALUES
-    ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
-    ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
-    ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
-    ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
-    ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
-    ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
-    ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
-    ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
-    ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
-    ('outro', 'Categorias que não se enquadram nas definições anteriores.');
+VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
+       ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
+       ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
+       ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
+       ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
+       ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
+       ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
+       ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
+       ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
+       ('outro', 'Categorias que não se enquadram nas definições anteriores.');
 
 INSERT INTO public.locations (name, street, number, neighborhood, city, state, zip_code, reference_point, capacity)
 VALUES ('Laboratório de Informática 01', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',

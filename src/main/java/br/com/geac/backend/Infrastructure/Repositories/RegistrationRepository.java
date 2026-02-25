@@ -30,4 +30,8 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
             @Param("userIds") List<UUID> userIds,
             @Param("attended") boolean attended
     );
+
+    List<Registration> findByEventIdAndNotifiedIsFalse(UUID eventId, boolean notified);
+
+    List<Registration> findByEventIdAndNotified(UUID eventId, boolean notified);
 }
