@@ -4,7 +4,9 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.OrganizerResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.OrganizerRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.OrganizerMapper;
 import br.com.geac.backend.Domain.Entities.Organizer;
+import br.com.geac.backend.Domain.Entities.OrganizerMember;
 import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Infrastructure.Repositories.OrganizerMemberRepository;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class OrganizerService {
 
     private final OrganizerRepository organizerRepository;
     private final OrganizerMapper organizerMapper;
+    private final OrganizerMemberRepository organizerMemberRepository;
 
     @Transactional
     public OrganizerResponseDTO createOrganizer(OrganizerRequestDTO dto) {
@@ -67,5 +70,18 @@ public class OrganizerService {
     private Organizer findByIdOrThrow(UUID id) {
         return organizerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organização não encontrada com o ID: " + id)); // Posteriormente podemos criar uma EntityNotFoundException global
+    }
+
+    public List<OrganizerResponseDTO> getAllUserOrganizer(UUID uuid) {
+           var userOrgsIds= organizerMemberRepository.getAllByUserId(uuid)
+                   .stream()
+                   .map(organizerMember ->
+                                   organizerMember.getOrganizer().getId()
+                           )
+                   .toList();
+           return organizerRepository.findAllByIdIn(userOrgsIds)
+                   .stream()
+                   .map(organizerMapper::toResponseDTO)
+                   .toList();
     }
 }

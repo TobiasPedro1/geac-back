@@ -3,6 +3,7 @@ package br.com.geac.backend.API.Controller;
 import br.com.geac.backend.Aplication.DTOs.Reponse.OrganizerResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.OrganizerRequestDTO;
 import br.com.geac.backend.Aplication.Services.OrganizerService;
+import br.com.geac.backend.Domain.Entities.Organizer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,4 +47,10 @@ public class OrganizerController {
         organizerService.deleteOrganizer(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<OrganizerResponseDTO>> getUserOrganizers(@PathVariable UUID id) {
+        return ResponseEntity.ok(organizerService.getAllUserOrganizer(id));
+    }
+
 }

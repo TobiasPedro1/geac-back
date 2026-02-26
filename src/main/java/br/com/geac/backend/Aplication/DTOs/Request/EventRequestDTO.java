@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 public record EventRequestDTO(
         @NotBlank(message = "O título é obrigatório")
@@ -45,6 +46,9 @@ public record EventRequestDTO(
 
         @NotNull
         @Size(min = 1, message = "O evento deve ter pelo menos um palestrante")
-        Set<Integer> speakers
+        Set<Integer> speakers,
+
+        @NotNull
+        UUID orgId
 ) {
 }

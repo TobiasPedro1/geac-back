@@ -40,4 +40,5 @@ public class OrganizerMemberController {
         memberService.removeMember(organizerId, userId);
         return ResponseEntity.noContent().build();
     }
+
 }

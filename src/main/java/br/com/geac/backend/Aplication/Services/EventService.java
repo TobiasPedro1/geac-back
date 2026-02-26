@@ -36,6 +36,13 @@ public class EventService {
     private final OrganizerRepository organizerRepository;
     // private final UserRepository userRepository;
 
+
+    /*
+    * verifica se o usuário é um organizador ou admin -> procura as categorias, localizações e eventos no banco,
+    * procura a organização que foi passada no frontEnd pelo ID
+    * verifica se o usuário realment pertence a esta organização ( caso algo tenha dado errado, nao era pra entrar aqui pois há diversos filtros)
+    * cria o evento e manda a resposta pelo  dtoresponse
+     */
     @Transactional
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -55,11 +62,12 @@ public class EventService {
         EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
                 .orElseThrow(() -> new RequirementNotFoundException("Requisito não encontrado com ID: " + dto.requirementId()));
 
-        var organization = organizerMemberRepository.findByUserId(user.getId()).orElseThrow(()->new BadRequestException("User has no org"));
+        var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
+        if(!organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())){
+            throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
+        }
 
-        //TODO: colocar no mapper quem tiver coragem
-
-        Event event = new Event();
+        Event event = new Event();  //algum heroi ajusta omapper
         event.setTitle(dto.title());
         event.setDescription(dto.description());
         event.setOnlineLink(dto.onlineLink());
@@ -68,14 +76,14 @@ public class EventService {
         event.setWorkloadHours(dto.workloadHours());
         event.setMaxCapacity(dto.maxCapacity());
         event.setStatus("ACTIVE");
-        event.setOrganizer(organization.getOrganizer());
+        event.setOrganizer(organization);
         event.setCategory(category);
         event.setLocation(location);
         event.setRequirement(requirement);
         event.setTags(resolveTags(dto.tags()));
         event.setSpeakers(resolveSpeakers(dto.speakers()));
         Event saved = eventRepository.save(event);
-
+        //TODO: setar countRegistration e incrementa-la nas inscricoes, ta faltando na entity
         return eventMapper.toResponseDTO(saved);
     }
 
@@ -113,6 +121,18 @@ public class EventService {
         if (dto.locationId() != null) {
             Location location = locationRepository.findById(dto.locationId()).orElseThrow();
             event.setLocation(location);
+        }
+        if (dto.orgId() != null) {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            List<String> authorites = List.of("ORGANIZER","ADMIN");
+            if (user.getRole() == null || !authorites.contains(user.getRole().name())) { //nao necessário mas uma segurança  a mais
+                throw new AccessDeniedException("Apenas organizadores e administradores podem editar eventos.");
+            }
+            var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
+            if(!organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())){
+                throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
+            }
+            event.setOrganizer(organization);
         }
         return eventMapper.toResponseDTO(eventRepository.save(event));
 

@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 public record EventPatchRequestDTO(
         @Size(min = 5, max = 100)
@@ -28,6 +29,7 @@ public record EventPatchRequestDTO(
         Integer requirementId,
         Set<Integer> tags,
         Integer locationId,
-        Set<Integer> speakers
+        Set<Integer> speakers,
+        UUID orgId
 ) {
 }
