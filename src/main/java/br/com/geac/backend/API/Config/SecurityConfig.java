@@ -34,7 +34,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         //eventos: qualquer autenticado passa pela rota. a validação se e membro da Org ou Admin será feita no Service.
                         .requestMatchers(HttpMethod.GET, "/events/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/events").authenticated()
                         //acoes restritas ao ADMIN
                         .requestMatchers(HttpMethod.GET, "/organizer-requests/pending").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/organizer-requests/*/approve").hasRole("ADMIN")
@@ -45,6 +44,9 @@ public class SecurityConfig {
                         //solicitacoes: usuario comum pode apenas CRIAR a solicitação
                         .requestMatchers(HttpMethod.POST, "/organizer-requests").authenticated()
                         .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements", "/organizers", "/organizers/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/categories","/events","/events/**")  .hasAnyRole("ADMIN","ORGANIZER")
+                        .requestMatchers(HttpMethod.PATCH, "/categories","/events") .hasAnyRole("ADMIN","ORGANIZER")
+                        .requestMatchers(HttpMethod.DELETE, "/categories","/events") .hasAnyRole("ADMIN","ORGANIZER")
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout((logout) -> logout

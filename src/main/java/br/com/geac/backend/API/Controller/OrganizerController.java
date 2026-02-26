@@ -7,9 +7,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/organizers")
@@ -19,7 +21,7 @@ public class OrganizerController {
     private final OrganizerService organizerService;
 
     @PostMapping
-    // TODO: adicionar @PreAuthorize("hasRole('ADMIN')") conforme requisito
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrganizerResponseDTO> createOrganizer(@RequestBody @Valid OrganizerRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(organizerService.createOrganizer(dto));
     }
@@ -30,17 +32,17 @@ public class OrganizerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrganizerResponseDTO> getOrganizerById(@PathVariable Integer id) {
+    public ResponseEntity<OrganizerResponseDTO> getOrganizerById(@PathVariable UUID id) {
         return ResponseEntity.ok(organizerService.getOrganizerById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrganizerResponseDTO> updateOrganizer(@PathVariable Integer id, @RequestBody @Valid OrganizerRequestDTO dto) {
+    public ResponseEntity<OrganizerResponseDTO> updateOrganizer(@PathVariable UUID id, @RequestBody @Valid OrganizerRequestDTO dto) {
         return ResponseEntity.ok(organizerService.updateOrganizer(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrganizer(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteOrganizer(@PathVariable UUID id) {
         organizerService.deleteOrganizer(id);
         return ResponseEntity.noContent().build();
     }

@@ -5,6 +5,10 @@ import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.EventMapper;
 import br.com.geac.backend.Domain.Entities.*;
+import br.com.geac.backend.Domain.Exceptions.BadRequestException;
+import br.com.geac.backend.Domain.Exceptions.CategoryNotFoundException;
+import br.com.geac.backend.Domain.Exceptions.LocationNotFoundException;
+import br.com.geac.backend.Domain.Exceptions.RequirementNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,24 +32,32 @@ public class EventService {
     private final EventMapper eventMapper;
     private final TagRepository tagRepository;
     private final SpeakerRepository speakerRepository;
+    private final OrganizerMemberRepository organizerMemberRepository;
+    private final OrganizerRepository organizerRepository;
     // private final UserRepository userRepository;
 
     @Transactional
     public EventResponseDTO createEvent(EventRequestDTO dto) {
-        User organizer = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (organizer.getRole() == null || !organizer.getRole().name().equals("PROFESSOR")) {
-            throw new AccessDeniedException("Apenas organizadores podem cadastrar eventos.");
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<String> authorites = List.of("ORGANIZER","ADMIN");
+
+        if (user.getRole() == null || !authorites.contains(user.getRole().name())) { //nao necessário mas uma segurança  a mais
+            throw new AccessDeniedException("Apenas organizadores e administradores podem cadastrar eventos.");
         }
 
         Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + dto.categoryId()));
+                .orElseThrow(() -> new CategoryNotFoundException("Categoria não encontrada com ID: " + dto.categoryId()));
         Location location = null;
         if (dto.locationId() != null) {
             location = locationRepository.findById(dto.locationId())
-                    .orElseThrow(() -> new RuntimeException("Local não encontrado com ID: " + dto.locationId()));
+                    .orElseThrow(() -> new LocationNotFoundException("Local não encontrado com ID: " + dto.locationId()));
         }
         EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
-                .orElseThrow(() -> new RuntimeException("Requisito não encontrado com ID: " + dto.requirementId()));
+                .orElseThrow(() -> new RequirementNotFoundException("Requisito não encontrado com ID: " + dto.requirementId()));
+
+        var organization = organizerMemberRepository.findByUserId(user.getId()).orElseThrow(()->new BadRequestException("User has no org"));
+
+        //TODO: colocar no mapper quem tiver coragem
 
         Event event = new Event();
         event.setTitle(dto.title());
@@ -55,8 +68,7 @@ public class EventService {
         event.setWorkloadHours(dto.workloadHours());
         event.setMaxCapacity(dto.maxCapacity());
         event.setStatus("ACTIVE");
-
-        event.setOrganizer(organizer);
+        event.setOrganizer(organization.getOrganizer());
         event.setCategory(category);
         event.setLocation(location);
         event.setRequirement(requirement);

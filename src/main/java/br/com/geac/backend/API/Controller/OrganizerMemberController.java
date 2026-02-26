@@ -21,7 +21,7 @@ public class OrganizerMemberController {
 
     @PostMapping
     public ResponseEntity<Void> addMember(
-            @PathVariable Integer organizerId,
+            @PathVariable UUID organizerId,
             @RequestBody @Valid AddMemberRequestDTO dto) {
         memberService.addMember(organizerId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -29,13 +29,13 @@ public class OrganizerMemberController {
 
     @GetMapping
     public ResponseEntity<List<MemberResponseDTO>> getMembers(
-            @PathVariable Integer organizerId) {
+            @PathVariable UUID organizerId) {
         return ResponseEntity.ok(memberService.getMembersByOrganizerId(organizerId));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(
-            @PathVariable Integer organizerId,
+            @PathVariable UUID organizerId,
             @PathVariable UUID userId) {
         memberService.removeMember(organizerId, userId);
         return ResponseEntity.noContent().build();

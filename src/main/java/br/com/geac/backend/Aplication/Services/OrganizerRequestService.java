@@ -7,6 +7,7 @@ import br.com.geac.backend.Domain.Entities.OrganizerMember;
 import br.com.geac.backend.Domain.Entities.OrganizerRequest;
 import br.com.geac.backend.Domain.Entities.User;
 import br.com.geac.backend.Domain.Enums.RequestStatus;
+import br.com.geac.backend.Domain.Enums.Role;
 import br.com.geac.backend.Domain.Exceptions.ConflictException;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerMemberRepository;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerRepository;
@@ -44,6 +45,7 @@ public class OrganizerRequestService {
     @Transactional
     public void approveRequest(Integer requestId) {
         OrganizerRequest request = findRequestOrThrow(requestId);
+        var user = userRepository.findById(request.getUser().getId()).orElseThrow();
 
         request.setStatus(RequestStatus.APPROVED);
         request.setResolvedAt(LocalDateTime.now());
@@ -58,6 +60,10 @@ public class OrganizerRequestService {
             newMember.setOrganizer(request.getOrganizer());
             newMember.setUser(request.getUser());
             memberRepository.save(newMember);
+            if (user.getRole().equals(Role.STUDENT)) {
+                user.setRole(Role.ORGANIZER);
+                userRepository.save(user);
+            }
         }
     }
 

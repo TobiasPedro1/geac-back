@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface OrganizerRequestRepository extends JpaRepository<OrganizerRequest, Integer> {
     List<OrganizerRequest> findAllByStatus(RequestStatus status);
 
-    boolean existsByUserIdAndOrganizerIdAndStatus(UUID userId, Integer organizerId, RequestStatus status);
+    boolean existsByUserIdAndOrganizerIdAndStatus(UUID userId, UUID organizerId, RequestStatus status);
 }

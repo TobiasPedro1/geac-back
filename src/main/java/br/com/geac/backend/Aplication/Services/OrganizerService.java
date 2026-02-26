@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,13 +39,13 @@ public class OrganizerService {
     }
 
     @Transactional(readOnly = true)
-    public OrganizerResponseDTO getOrganizerById(Integer id) {
+    public OrganizerResponseDTO getOrganizerById(UUID id) {
         Organizer organizer = findByIdOrThrow(id);
         return organizerMapper.toResponseDTO(organizer);
     }
 
     @Transactional
-    public OrganizerResponseDTO updateOrganizer(Integer id, OrganizerRequestDTO dto) {
+    public OrganizerResponseDTO updateOrganizer(UUID id, OrganizerRequestDTO dto) {
         Organizer organizer = findByIdOrThrow(id);
 
         if (!organizer.getName().equalsIgnoreCase(dto.name()) && organizerRepository.existsByName(dto.name())) {
@@ -58,12 +59,12 @@ public class OrganizerService {
     }
 
     @Transactional
-    public void deleteOrganizer(Integer id) {
+    public void deleteOrganizer(UUID id) {
         Organizer organizer = findByIdOrThrow(id);
         organizerRepository.delete(organizer);
     }
 
-    private Organizer findByIdOrThrow(Integer id) {
+    private Organizer findByIdOrThrow(UUID id) {
         return organizerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organização não encontrada com o ID: " + id)); // Posteriormente podemos criar uma EntityNotFoundException global
     }

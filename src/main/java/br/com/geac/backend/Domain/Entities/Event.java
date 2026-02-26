@@ -20,7 +20,7 @@ public class Event {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "organizer_id", nullable = false)
-    private User organizer;
+    private Organizer organizer;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
