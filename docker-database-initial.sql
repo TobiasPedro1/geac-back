@@ -92,7 +92,7 @@ CREATE TABLE events
     end_time       TIMESTAMP    NOT NULL,
     workload_hours INTEGER      NOT NULL,
     max_capacity   INTEGER      NOT NULL,
-    requirement_id INTEGER      NOT NULL REFERENCES requirements (id),
+--     requirement_id INTEGER              NOT NULL REFERENCES requirements (id), -- ✅ REMOVIDO: O relacionamento de requisitos agora é muitos-para-muitos, então essa coluna foi removida --- IGNORE ---
 
     status         VARCHAR(20),
     created_at     TIMESTAMP        DEFAULT NOW()
@@ -104,6 +104,14 @@ CREATE TABLE event_speakers
     speaker_id INTEGER NOT NULL REFERENCES speakers (id) ON DELETE CASCADE,
     PRIMARY KEY (event_id, speaker_id)
 );
+
+CREATE TABLE event_requirements
+(
+    event_id       UUID    NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    requirement_id INTEGER NOT NULL REFERENCES requirements (id) ON DELETE CASCADE,
+    PRIMARY KEY (event_id, requirement_id)
+);
+
 
 -- SÓ AGORA CRIAMOS EVENT_TAGS
 CREATE TABLE event_tags
@@ -188,16 +196,6 @@ VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
 
 
 INSERT INTO categories (name, description)
-VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
-       ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
-       ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
-       ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
-       ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
-       ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
-       ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
-       ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
-       ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
-       ('outro', 'Categorias que não se enquadram nas definições anteriores.');
 VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
        ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
        ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
@@ -357,58 +355,60 @@ VALUES ('apoio'),
        ('tecnologia'),
        ('workshop');
 
-
 -- Insert 5 organizers
 INSERT INTO public.organizers (id, name, contact_email)
 VALUES ('a1111111-1111-1111-1111-111111111111', 'Departamento de Ciências da Computação', 'cs.dept@university.edu'),
        ('a2222222-2222-2222-2222-222222222222', 'Centro Estudantil de Atividades', 'student.activities@university.edu'),
-       ('a3333333-3333-3333-3333-333333333333', 'Instituto de Pesquisa Ambiental', 'environmental.research@university.edu'),
-       ('a4444444-4444-4444-4444-444444444444', 'Serviços de Carreira e Desenvolvimento', 'career.services@university.edu'),
+       ('a3333333-3333-3333-3333-333333333333', 'Instituto de Pesquisa Ambiental',
+        'environmental.research@university.edu'),
+       ('a4444444-4444-4444-4444-444444444444', 'Serviços de Carreira e Desenvolvimento',
+        'career.services@university.edu'),
        ('a5555555-5555-5555-5555-555555555555', 'Departamento de Estudos Culturais', 'cultural.studies@university.edu');
 
 -- ==========================================
 -- 2. EVENTOS (Com IDs de organizadores corrigidos)
 -- ==========================================
 INSERT INTO public.events (id, organizer_id, category_id, location_id, title, description, online_link, start_time,
-                           end_time, workload_hours, max_capacity, requirement_id, status, created_at)
+                           end_time, workload_hours, max_capacity, status, created_at)
 VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-111111111111', 2, 1,
         'Inteligência Artificial e o Futuro do Trabalho',
         'Junte-se a nós para uma palestra esclarecedora sobre como a IA está transformando o local de trabalho...',
-        'https://example.com/ia-futuro-trabalho', '2026-02-20 14:00:00.000000', '2026-02-20 16:00:00.000000', 2, 200, 3,
+        'https://example.com/ia-futuro-trabalho', '2026-02-20 14:00:00.000000', '2026-02-20 16:00:00.000000', 2, 200,
         'upcoming', NOW()),
        ('e2222222-d628-46ef-b838-b66d4758b966', 'a5555555-5555-5555-5555-555555555555', 4, 18,
         'Festival Cultural Internacional 2026',
         'Experimente uma celebração da diversidade com apresentações, comida e exposições de mais de 30 países...',
-        NULL, '2026-03-15 10:00:00.000000', '2026-03-15 18:00:00.000000', 8, 1000, 6, 'upcoming', NOW()),
+        NULL, '2026-03-15 10:00:00.000000', '2026-03-15 18:00:00.000000', 8, 1000, 'upcoming', NOW()),
        ('e3333333-d628-46ef-b838-b66d4758b966', 'a3333333-3333-3333-3333-333333333333', 3, 26,
         'Mudanças Climáticas: Ciência e Ação',
         'Uma série abrangente de seminários com os principais cientistas climáticos e ativistas ambientais...',
         'https://example.com/mudancas-climaticas', '2026-02-28 09:00:00.000000', '2026-02-28 13:00:00.000000', 4, 100,
-        10, 'upcoming', NOW()),
+        'upcoming', NOW()),
        ('e4444444-d628-46ef-b838-b66d4758b966', 'a4444444-4444-4444-4444-444444444444', 5, 42,
         'Feira de Carreiras 2026: Tecnologia e Inovação',
         'Encontre-se com representantes de mais de 50 empresas líderes em tecnologia...',
-        'https://example.com/feira-carreiras', '2026-03-05 11:00:00.000000', '2026-03-05 17:00:00.000000', 6, 500, 12,
+        'https://example.com/feira-carreiras', '2026-03-05 11:00:00.000000', '2026-03-05 17:00:00.000000', 6, 500,
         'upcoming', NOW()),
        ('e5555555-d628-46ef-b838-b66d4758b966', 'a2222222-2222-2222-2222-222222222222', 6, 13,
         'Workshop de Estratégias de Marketing Digital',
         'Workshop prático cobrindo marketing em mídias sociais, SEO, criação de conteúdo e análise de dados...',
-        'https://example.com/workshop-marketing', '2026-02-25 15:00:00.000000', '2026-02-25 18:00:00.000000', 3, 50, 1,
+        'https://example.com/workshop-marketing', '2026-02-25 15:00:00.000000', '2026-02-25 18:00:00.000000', 3, 50,
         'upcoming', NOW()),
        ('e6666666-d628-46ef-b838-b66d4758b966', 'a2222222-2222-2222-2222-222222222222', 3, 17,
         'Seminário de Saúde Mental e Bem-Estar',
         'Uma discussão importante sobre saúde mental estudantil, técnicas de gerenciamento de estresse...',
-        'https://example.com/saude-mental', '2026-02-18 16:00:00.000000', '2026-02-18 18:00:00.000000', 2, 80, 4,
+        'https://example.com/saude-mental', '2026-02-18 16:00:00.000000', '2026-02-18 18:00:00.000000', 2, 80,
         'upcoming', NOW()),
        ('e7777777-d628-46ef-b838-b66d4758b966', 'a5555555-5555-5555-5555-555555555555', 4, 12,
         'Noite de Rock na Universidade',
         'Desfrute de uma noite de música rock ao vivo apresentada pelo Conjunto de Pseudo Músicos...',
-        'https://example.com/noite-rock', '2026-03-10 19:00:00.000000', '2026-03-10 21:30:00.000000', 2.5, 250, 7,
+        'https://example.com/noite-rock', '2026-03-10 19:00:00.000000', '2026-03-10 21:30:00.000000', 2.5, 250,
         'cancelled', NOW()),
        ('e8888888-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-111111111111', 8, 19,
         'Conferência sobre Blockchain e Criptomoedas',
         'Explore o mundo da tecnologia blockchain, mercados de criptomoedas e finanças descentralizadas...',
-        'https://example.com/conferencia-blockchain', '2026-03-22 10:00:00.000000', '2026-03-22 16:00:00.000000', 6, 150, 9,
+        'https://example.com/conferencia-blockchain', '2026-03-22 10:00:00.000000', '2026-03-22 16:00:00.000000', 6,
+        150,
         'upcoming', NOW());
 -- Insert event tags
 INSERT INTO public.event_tags (event_id, tag_id)
@@ -465,3 +465,45 @@ VALUES -- Evento de IA (e153c21a...) com Alan Turing (ID 1)
        ('e5555555-d628-46ef-b838-b66d4758b966', 10),
        -- Conferência Blockchain (e8888888...) com Hedy Lamarr (ID 9)
        ('e8888888-d628-46ef-b838-b66d4758b966', 9);
+
+INSERT INTO public.event_requirements (event_id, requirement_id)
+VALUES -- Evento 1 (Inteligência Artificial)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 1),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 5),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 6),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 2 (Festival Cultural)
+       ('e2222222-d628-46ef-b838-b66d4758b966', 3),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 4),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 8),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 3 (Mudanças Climáticas)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 1),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 2),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 3),
+       -- Evento 4 (Feira de Carreiras)
+       ('e4444444-d628-46ef-b838-b66d4758b966', 4),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 5),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 6),
+       -- Evento 5 (Workshop de Marketing)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 7),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 8),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 6 (Seminário de Saúde Mental)
+       ('e6666666-d628-46ef-b838-b66d4758b966', 10),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 11),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 12),
+       -- Evento 7 (Noite de Rock)
+       ('e7777777-d628-46ef-b838-b66d4758b966', 1),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 2),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 3),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 4),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 5),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 6),
+       -- Evento 8 (Conferência sobre Blockchain)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 7),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 8),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 9),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 10),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 11),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 12);
