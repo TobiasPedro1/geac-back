@@ -46,7 +46,13 @@ public class User implements UserDetails {
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
                     new SimpleGrantedAuthority("ROLE_PROFESSOR"),
-                    new SimpleGrantedAuthority("ROLE_STUDENT")
+                    new SimpleGrantedAuthority("ROLE_STUDENT"),
+                    new SimpleGrantedAuthority("ROLE_ORGANIZER")
+            );
+        } else if (this.role == Role.ORGANIZER) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_STUDENT"),
+                    new SimpleGrantedAuthority("ROLE_ORGANIZER")
             );
         } else if (this.role == Role.PROFESSOR) {
             return List.of(

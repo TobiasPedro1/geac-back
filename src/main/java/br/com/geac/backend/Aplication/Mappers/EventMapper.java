@@ -18,7 +18,7 @@ public interface EventMapper {
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "categoryName", source = "category.name")
     @Mapping(target = "organizerName", source = "organizer.name")
-    @Mapping(target = "organizerEmail", source = "organizer.email")
+    @Mapping(target = "organizerEmail", source = "organizer.contactEmail")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
     EventResponseDTO toResponseDTO(Event event);
 

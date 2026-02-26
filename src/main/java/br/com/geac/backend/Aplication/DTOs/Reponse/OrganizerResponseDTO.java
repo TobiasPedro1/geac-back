@@ -1,7 +1,9 @@
 package br.com.geac.backend.Aplication.DTOs.Reponse;
 
+import java.util.UUID;
+
 public record OrganizerResponseDTO(
-        Integer id,
+        UUID id,
         String name,
         String contactEmail
 ) {

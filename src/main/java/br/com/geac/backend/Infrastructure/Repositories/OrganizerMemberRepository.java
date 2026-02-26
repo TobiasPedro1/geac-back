@@ -1,6 +1,8 @@
 package br.com.geac.backend.Infrastructure.Repositories;
 
+import br.com.geac.backend.Domain.Entities.Organizer;
 import br.com.geac.backend.Domain.Entities.OrganizerMember;
+import br.com.geac.backend.Domain.Entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +14,13 @@ import java.util.UUID;
 public interface OrganizerMemberRepository extends JpaRepository<OrganizerMember, Integer> {
 
     //utilizado para validar se o usuario tem os poderes necessarios
-    boolean existsByOrganizerIdAndUserId(Integer organizerId, UUID userId);
+    boolean existsByOrganizerIdAndUserId(UUID organizerId, UUID userId);
 
-    List<OrganizerMember> findAllByOrganizerId(Integer organizerId);
+    List<OrganizerMember> findAllByOrganizerId(UUID organizerId);
 
     // buscar um vínculo específico para podermos deletar
-    Optional<OrganizerMember> findByOrganizerIdAndUserId(Integer organizerId, UUID userId);
+    Optional<OrganizerMember> findByOrganizerIdAndUserId(UUID organizerId, UUID userId);
+
+
+    List<OrganizerMember> getAllByUserId(UUID userId);
 }

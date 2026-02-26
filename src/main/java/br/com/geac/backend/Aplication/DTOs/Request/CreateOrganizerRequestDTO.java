@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record CreateOrganizerRequestDTO(
         @NotNull(message = "ID do usuário é obrigatório") UUID userId,
-        @NotNull(message = "ID da organização é obrigatório") Integer organizerId,
+        @NotNull(message = "ID da organização é obrigatório") UUID organizerId,
         String justification
 ) {
 }

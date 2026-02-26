@@ -1,7 +1,7 @@
 package br.com.geac.backend.API.Handler;
 
+import br.com.geac.backend.Domain.Exceptions.BadRequestException;
 import br.com.geac.backend.Domain.Exceptions.ConflictException;
-import br.com.geac.backend.Domain.Exceptions.ConflictExceptionDetails;
 import br.com.geac.backend.Domain.Exceptions.ExceptionDetails;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,10 +21,10 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ConflictExceptionDetails> handleConflictException(ConflictException ex) {
+    public ResponseEntity<ExceptionDetails> handleConflictException(ConflictException ex) {
 
         return new ResponseEntity<>(
-                ConflictExceptionDetails.builder()
+                ExceptionDetails.builder()
                         .title("Conflict")
                         .status(HttpStatus.CONFLICT.value())
                         .timestamp(LocalDateTime.now())
@@ -32,6 +32,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .message("Conflict occurred: " + ex.getMessage())
                         .build(), HttpStatus.CONFLICT
 
+        );
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ExceptionDetails> handleConflict(BadRequestException e) {
+        return new ResponseEntity<>(
+                ExceptionDetails.builder()
+                        .title("Bad Request, algo deu errado")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .timestamp(LocalDateTime.now())
+                        .details(e.getClass().getSimpleName())
+                        .message("Bad Request: Alguma coias deu errado")
+                        .build(), HttpStatus.BAD_REQUEST
         );
     }
 
@@ -55,11 +68,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 ExceptionDetails.builder()
                         .title("Erro de integridade de dados")
-                        .status(HttpStatus.FORBIDDEN.value())
+                        .status(HttpStatus.CONFLICT.value())
                         .timestamp(LocalDateTime.now())
                         .details(e.getClass().getSimpleName())
                         .message("Bad Request: dados relacionados não podem ser excluídos ou modificados.")
-                        .build(), HttpStatus.BAD_REQUEST
+                        .build(), HttpStatus.CONFLICT
         );
     }
 
