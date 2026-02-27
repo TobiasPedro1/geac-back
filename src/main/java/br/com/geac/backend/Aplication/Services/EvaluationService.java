@@ -55,8 +55,9 @@ public class EvaluationService {
         evaluation.setRating(dto.rating());
         var saved = evaluationRepository.save(evaluation);
 
-        log.info("Avaliação salva com sucesso" + evaluation.getId());
-        log.info("Com o comentário" + evaluation.getComment());
+        log.info("Avaliação salva com sucesso id:" + evaluation.getId());
+        log.info("Username: "+ authenticatedUser.getUsername());
+        log.info("Com o comentário: " + evaluation.getComment());
         return mapper.toDTO(saved);
 
     }
