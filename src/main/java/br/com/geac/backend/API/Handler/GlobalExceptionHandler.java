@@ -58,7 +58,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(LocalDateTime.now())
                         .details(ex.getClass().getSimpleName())
-                        .message("Bad Request: check the fields and try again.")
+                        .message(ex.getMessage())
                         .build(), HttpStatus.BAD_REQUEST
         );
     }
